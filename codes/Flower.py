@@ -53,6 +53,10 @@ class flower(object):
         # the flower
         if (self.name == "Rose"):
             mc.setBlock(7+shift,1,10, 38)
+        elif (self.name == "Lily"):
+            mc.setBlock(7+shift,1,10, 37)
+        elif (self.name == "Mushroom"):
+            mc.setBlock(7+shift,1,10, 39)
         else:
             mc.setBlock(7+shift,1,10, block.AIR.id)
         # lights on
@@ -76,9 +80,13 @@ class flower(object):
 
 flowers = []
 flowers.append(flower("Rose", 0))
-flowers.append(flower("Nope", 2))
+flowers.append(flower("Lily", 0))
+flowers.append(flower("Mushroom", 0))
+flowers.append(flower("Nope", 0))
 flowers[0].set_water(8)
-flowers[1].light_off()
+flowers[1].set_water(3)
+flowers[2].set_water(1)
+flowers[3].light_off()
 
 while True:
     pos = mc.player.getTilePos()
