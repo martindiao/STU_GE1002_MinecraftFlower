@@ -55,6 +55,11 @@ class flower(object):
         mc.setBlock(7+self.shift,0,9, 76)
         # the water button
         mc.setBlock(9+self.shift,0,8, 70)
+        # plunger
+        mc.setBlock(9+self.shift,-2,8, 29,2)
+        # air
+        mc.setBlock(9+self.shift,-2,6, block.AIR.id)
+        self.is_pressed = ( mc.getBlock(9+self.shift,-2,6) == 3 )
         # the torch
         mc.setBlock(6+self.shift,0,10, 50)
         # the flower
@@ -101,9 +106,10 @@ flowers[1].set_water(3)
 flowers[2].set_water(1)
 flowers[0].alert_off()
 while True:
+    # synchronize the flowers' class
     for i in flowers:
         i.is_alert()
+        i.is_pressed = ( mc.getBlock(9+i.shift,-2,6) == 3 )
     pos = mc.player.getTilePos()
-    #mc.postToChat("Flower Count:" + str(f1.count) + " " + str(f2.water))
     time.sleep(0.5)
     #mc.postToChat("x:"+str(pos.x)+"y:"+str(pos.y)+"z:"+str(pos.z))
