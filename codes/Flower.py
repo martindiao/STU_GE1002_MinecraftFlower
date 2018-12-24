@@ -44,11 +44,15 @@ class flower(object):
         mc.setBlocks(9+self.shift,0,12, 9+self.shift,10,12, block.GLASS.id)
         mc.setBlocks(8+self.shift,0,12, 8+self.shift,10,12, block.GLASS.id)
         mc.setBlocks(8+self.shift,0,11, 8+self.shift,10,11, block.GLASS.id)
-        mc.setBlocks(8+self.shift,0,10, 8+self.shift,10,10, block.GLASS.id)
+        mc.setBlocks(8+self.shift,3,10, 8+self.shift,10,10, block.GLASS.id)
         # the line on the sink
         mc.setBlocks(9+self.shift,-1,11, 9+self.shift,10,11, block.AIR.id)
-        # the grass
-        mc.setBlock(7+self.shift,0,10, 2)
+        # the grass block
+        if (self.name == "Cactus"):
+            mc.setBlock(7+self.shift,0,10, 12)
+            time.sleep(0.1)
+        else:
+            mc.setBlock(7+self.shift,0,10, 2)
         # the red torch
         mc.setBlock(7+self.shift,-1,10, 76)
         # the alert torch
@@ -67,6 +71,10 @@ class flower(object):
             mc.setBlock(7+self.shift,1,10, 38)
         elif (self.name == "Lily"):
             mc.setBlock(7+self.shift,1,10, 37)
+        elif (self.name == "Cactus"):
+            mc.setBlock(7+self.shift,1,10, 81)
+        elif (self.name == "Aloe"):
+            mc.setBlock(7+self.shift,1,10, 31,1)
         else:
             mc.setBlock(7+self.shift,1,10, block.AIR.id)
         # lights on
@@ -97,19 +105,31 @@ class flower(object):
                 self.alert_off()
             else:
                 self.alert_on()
+    def water_or_not(self):
+        if ( (self.is_pressed == False) and ( mc.getBlock(9+i.shift,-2,6) == 3 ) and (self.water != 10) ):
+            mc.postToChat( "Watering Flower " + str(self.index + 1) )
+            self.set_water(10)
+            self.alert_off()
 flowers = []
 flowers.append(flower("Rose", 0))
 flowers.append(flower("Lily", 0))
 flowers.append(flower("Lily", 0))
+flowers.append(flower("Cactus", 0))
+flowers.append(flower("Aloe", 0))
+
 flowers[0].set_water(8)
-flowers[1].set_water(3)
-flowers[2].set_water(1)
+flowers[1].set_water(2)
+flowers[2].set_water(10)
+flowers[3].set_water(1)
+flowers[4].set_water(0)
+
 flowers[0].alert_off()
 while True:
     # synchronize the flowers' class
     for i in flowers:
         i.is_alert()
+        i.water_or_not()
         i.is_pressed = ( mc.getBlock(9+i.shift,-2,6) == 3 )
     pos = mc.player.getTilePos()
-    time.sleep(0.5)
+    time.sleep(0.1)
     #mc.postToChat("x:"+str(pos.x)+"y:"+str(pos.y)+"z:"+str(pos.z))
