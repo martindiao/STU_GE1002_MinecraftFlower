@@ -2,6 +2,9 @@ from mcpi.minecraft import Minecraft
 import time
 import mcpi.block as block
 
+flowers = []
+inlist = []
+
 mc=Minecraft.create()
 #mc=Minecraft.create("10.19.75.6")
 
@@ -58,11 +61,14 @@ class flower(object):
         # the alert torch
         mc.setBlock(7+self.shift,0,9, 76)
         # the mode switch
-        mc.setBlock(9+self.shift,0,8, 69,5)
+        if (self.name != "Tank"):
+            mc.setBlock(9+self.shift,0,8, 69,5)
         # the instruction light
-        mc.setBlock(10+self.shift,0,8, 123)
+        if (self.name != "Tank"):
+            mc.setBlock(10+self.shift,0,8, 123)
         # plunger
-        mc.setBlock(9+self.shift,-2,8, 29,2)
+        if (self.name != "Tank"):
+            mc.setBlock(9+self.shift,-2,8, 29,2)
         # air
         mc.setBlock(9+self.shift,-2,6, block.AIR.id)
         self._mode = ( mc.getBlock(9+self.shift,-2,6) == 3 )
@@ -77,6 +83,8 @@ class flower(object):
             mc.setBlock(7+self.shift,1,10, 81)
         elif (self.name == "Aloe"):
             mc.setBlock(7+self.shift,1,10, 31,1)
+        elif (self.name == "Tank"):
+            mc.setBlock(7+self.shift,1,10, block.GLASS.id)
         else:
             mc.setBlock(7+self.shift,1,10, block.AIR.id)
         # lights on
@@ -94,12 +102,13 @@ class flower(object):
         mc.setBlock(7+self.shift,-1,10, 76)
         self.is_alert_on = False
     def set_water(self, _water): # 0 - 10
-        self.water = _water
-        mc.setBlocks(9+self.shift,0,10, 9+self.shift,10,10, block.AIR.id)
-        mc.setBlocks(9+self.shift,-1,11, 9+self.shift,10,11, block.AIR.id)
-        if (_water != 0):
-            mc.setBlock(9+self.shift,_water,11, block.WATER.id)
-        mc.postToChat("[Debug] Set water of flowers [" + str(self.index) + "] to " + str(self.water))
+        if (self.water != _water):
+            self.water = _water
+            mc.setBlocks(9+self.shift,0,10, 9+self.shift,10,10, block.AIR.id)
+            mc.setBlocks(9+self.shift,-1,11, 9+self.shift,10,11, block.AIR.id)
+            if (_water != 0):
+                mc.setBlock(9+self.shift,_water,11, block.WATER.id)
+            mc.postToChat("[Debug] Set water of flowers [" + str(self.index) + "] to " + str(self.water))
     def is_alert(self):
         if (self.water <= 2):
             if (self.is_alert_on):
@@ -114,27 +123,28 @@ class flower(object):
         self.is_alert()
         self.switch_or_not()
         self._mode = ( mc.getBlock(9+i.shift,-2,6) == 3 )
-flowers = []
-flowers.append(flower("Cactus", 0))
-#flowers.append(flower("Lily", 0))
-#flowers.append(flower("Lily", 0))
-#flowers.append(flower("Cactus", 0))
-#flowers.append(flower("Aloe", 0))
 
-flowers[0].set_water(8)
-#flowers[1].set_water(2)
-#flowers[2].set_water(10)
-#flowers[3].set_water(1)
-#flowers[4].set_water(0)
+flowers.append(flower("Tank", 0))
+flowers.append(flower("Aloe", 0))
+
+def read_in():
+    with open('\\\\192.168.0.100\\Share_pi\\mc\\upload.txt', 'r') as f:
+        inlist = f.readlines()
+    inlist = inlist[0].split(",")
+    if (float(inlist[1]) < 2.5):
+        flowers[0].set_water(0)
+    else:
+        flowers[0].set_water(10)
+    flowers[1].set_water(10-int(inlist[0]))
+
+read_in()
 
 while True:
-    # read statistics
-    #with open('/path/to/file', 'r') as f:
-    #    print(f.read())
+    read_in()
     # write switch mode
     #with open('switch.txt', 'w') as f:
     with open('\\\\192.168.0.100\\Share_pi\\switch.txt', 'w') as f:
-        f.write(str(int(flowers[0]._mode)))
+        f.write(str(int(flowers[1]._mode)))
 
     # synchronize the flowers' class
     for i in flowers:
