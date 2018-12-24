@@ -7,7 +7,7 @@ mc=Minecraft.create()
 
 #pos = mc.player.getTilePos()
 mc.player.setTilePos(0,0,0)
-
+server_path = "h:\\\\192.168.0.100\\Share_pi"
 # clear all
 mc.setBlocks(20,-1,6, -20,-1,12, 2)
 mc.setBlocks(20,0,6, -20,11,12, block.AIR.id)
@@ -57,13 +57,15 @@ class flower(object):
         mc.setBlock(7+self.shift,-1,10, 76)
         # the alert torch
         mc.setBlock(7+self.shift,0,9, 76)
-        # the water button
-        mc.setBlock(9+self.shift,0,8, 70)
+        # the mode switch
+        mc.setBlock(9+self.shift,0,8, 69,5)
+        # the instruction light
+        mc.setBlock(10+self.shift,0,8, 123)
         # plunger
         mc.setBlock(9+self.shift,-2,8, 29,2)
         # air
         mc.setBlock(9+self.shift,-2,6, block.AIR.id)
-        self.is_pressed = ( mc.getBlock(9+self.shift,-2,6) == 3 )
+        self._mode = ( mc.getBlock(9+self.shift,-2,6) == 3 )
         # the torch
         mc.setBlock(6+self.shift,0,10, 50)
         # the flower
@@ -105,31 +107,38 @@ class flower(object):
                 self.alert_off()
             else:
                 self.alert_on()
-    def water_or_not(self):
-        if ( (self.is_pressed == False) and ( mc.getBlock(9+i.shift,-2,6) == 3 ) and (self.water != 10) ):
-            mc.postToChat( "Watering Flower " + str(self.index + 1) )
-            self.set_water(10)
-            self.alert_off()
+    def switch_or_not(self):
+        if ( self._mode != ( mc.getBlock(9+i.shift,-2,6) == 3 ) ) :
+            mc.postToChat( "Switch mode of Flower " + str(self.index + 1) + " to " + str( mc.getBlock(9+i.shift,-2,6) == 3 ))
+    def upd(self):
+        self.is_alert()
+        self.switch_or_not()
+        self._mode = ( mc.getBlock(9+i.shift,-2,6) == 3 )
 flowers = []
-flowers.append(flower("Rose", 0))
-flowers.append(flower("Lily", 0))
-flowers.append(flower("Lily", 0))
 flowers.append(flower("Cactus", 0))
-flowers.append(flower("Aloe", 0))
+#flowers.append(flower("Lily", 0))
+#flowers.append(flower("Lily", 0))
+#flowers.append(flower("Cactus", 0))
+#flowers.append(flower("Aloe", 0))
 
 flowers[0].set_water(8)
-flowers[1].set_water(2)
-flowers[2].set_water(10)
-flowers[3].set_water(1)
-flowers[4].set_water(0)
+#flowers[1].set_water(2)
+#flowers[2].set_water(10)
+#flowers[3].set_water(1)
+#flowers[4].set_water(0)
 
-flowers[0].alert_off()
 while True:
+    # read statistics
+    #with open('/path/to/file', 'r') as f:
+    #    print(f.read())
+    # write switch mode
+    #with open('switch.txt', 'w') as f:
+    with open('\\\\192.168.0.100\\Share_pi\\switch.txt', 'w') as f:
+        f.write(str(int(flowers[0]._mode)))
+
     # synchronize the flowers' class
     for i in flowers:
-        i.is_alert()
-        i.water_or_not()
-        i.is_pressed = ( mc.getBlock(9+i.shift,-2,6) == 3 )
+        i.upd()
     pos = mc.player.getTilePos()
     time.sleep(0.1)
     #mc.postToChat("x:"+str(pos.x)+"y:"+str(pos.y)+"z:"+str(pos.z))
