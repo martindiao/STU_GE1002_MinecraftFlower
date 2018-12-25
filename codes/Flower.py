@@ -17,10 +17,10 @@ server_path = "h:\\\\192.168.0.100\\Share_pi"
 mc.setBlocks(20,-1,6, -20,-1,12, 2)
 mc.setBlocks(20,0,6, -20,11,12, block.AIR.id)
 # three axis
-mc.setBlock(0,8,0, block.STONE.id)
-mc.setBlock(0,8,1, block.STONE.id)
-mc.setBlock(1,8,0, block.STONE.id)
-mc.setBlock(0,9,0, block.STONE.id)
+#mc.setBlock(0,8,0, block.STONE.id)
+#mc.setBlock(0,8,1, block.STONE.id)
+#mc.setBlock(1,8,0, block.STONE.id)
+#mc.setBlock(0,9,0, block.STONE.id)
 # the 0 point
 mc.setBlock(0,-1,0, 41)
 # torches around the 0 point
@@ -53,9 +53,10 @@ class flower(object):
         # the line on the sink
         mc.setBlocks(9+self.shift,-1,11, 9+self.shift,10,11, block.AIR.id)
         # the grass block
-        if (self.name == "Cactus"):
+        if ((self.name == "Cactus") or ("仙人" in self.name)):
             mc.setBlock(7+self.shift,0,10, 12)
-            time.sleep(0.1)
+        elif (self.name == "Tank"):
+            mc.setBlock(7+self.shift,0,10, 120)
         else:
             mc.setBlock(7+self.shift,0,10, 2)
         # the red torch
@@ -71,22 +72,23 @@ class flower(object):
         # plunger
         if (self.name != "Tank"):
             mc.setBlock(9+self.shift,-2,8, 29,2)
+            mc.setBlock(9+self.shift,-2,7, 3)
+
         # air
         mc.setBlock(9+self.shift,-2,6, block.AIR.id)
         self._mode = ( mc.getBlock(9+self.shift,-2,6) == 3 )
         # the torch
         mc.setBlock(6+self.shift,0,10, 50)
         # the flower
-        if (self.name == "Rose"):
+        if ((self.name == "Rose") or ("玫瑰" in self.name)):
             mc.setBlock(7+self.shift,1,10, 38)
         elif (self.name == "Lily"):
             mc.setBlock(7+self.shift,1,10, 37)
-        elif (self.name == "Cactus"):
+        elif ((self.name == "Cactus") or ("仙人" in self.name)):
             mc.setBlock(7+self.shift,1,10, 81)
-        elif (self.name == "Aloe"):
+        elif ((self.name == "Aloe") or (self.name == "芦荟")):
             mc.setBlock(7+self.shift,1,10, 31,1)
-        elif (self.name == "Tank"):
-            mc.setBlock(7+self.shift,1,10, block.GLASS.id)
+
         else:
             mc.setBlock(7+self.shift,1,10, block.AIR.id)
         # lights on
@@ -110,7 +112,7 @@ class flower(object):
             mc.setBlocks(9+self.shift,-1,11, 9+self.shift,10,11, block.AIR.id)
             if (_water != 0):
                 mc.setBlock(9+self.shift,_water,11, block.WATER.id)
-            mc.postToChat("[Debug] Set water of flowers [" + str(self.index) + "] to " + str(self.water))
+            #mc.postToChat("[Debug] Set water of flowers [" + str(self.index) + "] to " + str(self.water))
     def is_alert(self):
         if (self.water <= 2):
             if (self.is_alert_on):
@@ -132,16 +134,18 @@ flowers.append(flower(flower_name, 0))
 def read_in():
     global flower_name
     global flower_count
-    with open('upload.txt', 'r') as f:
-    #with open('\\\\192.168.0.100\\Share_pi\\mc\\upload.txt', 'r') as f:
+    #with open('upload.txt', 'r') as f:
+    with open('\\\\192.168.0.100\\Share_pi\\upload.txt', 'r', encoding='UTF-8') as f:
         inlist = f.readlines()
     inlist = inlist[0].split(",")
-    if (flower_name != inlist[2]) :
+    #print(inlist)
+    if ((flower_name != inlist[2]) and (flowers[1]._mode)):
         flowers.pop()
         flower_count -= 1
         flower_name = inlist[2]
         flowers.append(flower(flower_name, 0))
-    if (float(inlist[1]) < 2.5) :
+
+    if (float(inlist[1]) < 3) :
         flowers[0].set_water(0)
     else:
         flowers[0].set_water(10)
@@ -155,8 +159,8 @@ while True:
     for i in flowers:
         i.upd()
     # write switch mode
-    with open('switch.txt', 'w') as f:
-    #with open('\\\\192.168.0.100\\Share_pi\\switch.txt', 'w') as f:
+    #with open('switch.txt', 'w') as f:
+    with open('\\\\192.168.0.100\\Share_pi\\switch.txt', 'w') as f:
         f.write(str(int(flowers[1]._mode)))
     pos = mc.player.getTilePos()
     time.sleep(0.1)
