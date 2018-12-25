@@ -4,6 +4,8 @@ import mcpi.block as block
 
 flowers = []
 inlist = []
+flower_name = "Air"
+flower_count = -1
 
 mc=Minecraft.create()
 #mc=Minecraft.create("10.19.75.6")
@@ -28,13 +30,13 @@ mc.setBlocks(1,0,1, -1,0,1, 50)
 mc.setBlocks(1,0,-1, -1,0,-1, 50)
 
 class flower(object):
-    count = -1
     def __init__(self, name, _water):
+        global flower_count
         self.name = name
         self.water = _water
         self.is_alert_on = False
-        flower.count += 1
-        self.index = flower.count # starts from 0
+        flower_count += 1
+        self.index = flower_count # starts from 0
         # setting the meter
         self.shift = -self.index * 6
         # overwrite
@@ -101,7 +103,7 @@ class flower(object):
     def alert_off(self):
         mc.setBlock(7+self.shift,-1,10, 76)
         self.is_alert_on = False
-    def set_water(self, _water): # 0 - 10
+    def set_water(self, _water): # 0 ~ 10
         if (self.water != _water):
             self.water = _water
             mc.setBlocks(9+self.shift,0,10, 9+self.shift,10,10, block.AIR.id)
@@ -125,13 +127,21 @@ class flower(object):
         self._mode = ( mc.getBlock(9+i.shift,-2,6) == 3 )
 
 flowers.append(flower("Tank", 0))
-flowers.append(flower("Aloe", 0))
+flowers.append(flower(flower_name, 0))
 
 def read_in():
-    with open('\\\\192.168.0.100\\Share_pi\\mc\\upload.txt', 'r') as f:
+    global flower_name
+    global flower_count
+    with open('upload.txt', 'r') as f:
+    #with open('\\\\192.168.0.100\\Share_pi\\mc\\upload.txt', 'r') as f:
         inlist = f.readlines()
     inlist = inlist[0].split(",")
-    if (float(inlist[1]) < 2.5):
+    if (flower_name != inlist[2]) :
+        flowers.pop()
+        flower_count -= 1
+        flower_name = inlist[2]
+        flowers.append(flower(flower_name, 0))
+    if (float(inlist[1]) < 2.5) :
         flowers[0].set_water(0)
     else:
         flowers[0].set_water(10)
@@ -141,14 +151,13 @@ read_in()
 
 while True:
     read_in()
-    # write switch mode
-    #with open('switch.txt', 'w') as f:
-    with open('\\\\192.168.0.100\\Share_pi\\switch.txt', 'w') as f:
-        f.write(str(int(flowers[1]._mode)))
-
     # synchronize the flowers' class
     for i in flowers:
         i.upd()
+    # write switch mode
+    with open('switch.txt', 'w') as f:
+    #with open('\\\\192.168.0.100\\Share_pi\\switch.txt', 'w') as f:
+        f.write(str(int(flowers[1]._mode)))
     pos = mc.player.getTilePos()
     time.sleep(0.1)
     #mc.postToChat("x:"+str(pos.x)+"y:"+str(pos.y)+"z:"+str(pos.z))
